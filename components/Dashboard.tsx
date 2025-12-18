@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { UserProfile, Meal, MealType } from '../types';
 import { Button } from './ui/Button';
-import { Camera, Utensils, Flame, Sunrise, Sun, Moon, Coffee, ChevronRight, Plus } from 'lucide-react';
+import { Camera, Utensils, Flame, Sunrise, Sun, Moon, Coffee, Plus, Info } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 interface DashboardProps {
@@ -10,169 +11,133 @@ interface DashboardProps {
   onOpenCamera: () => void;
 }
 
-const getMealIcon = (type: MealType) => {
-  switch (type) {
-    case MealType.Breakfast: return <Sunrise className="w-5 h-5" />;
-    case MealType.Lunch: return <Sun className="w-5 h-5" />;
-    case MealType.Dinner: return <Moon className="w-5 h-5" />;
-    case MealType.Snack: return <Coffee className="w-5 h-5" />;
-    default: return <Utensils className="w-5 h-5" />;
-  }
-};
-
-const getMealColor = (type: MealType) => {
-  switch (type) {
-    case MealType.Breakfast: return 'bg-orange-100 text-orange-600';
-    case MealType.Lunch: return 'bg-yellow-100 text-yellow-600';
-    case MealType.Dinner: return 'bg-indigo-100 text-indigo-600';
-    case MealType.Snack: return 'bg-purple-100 text-purple-600';
-    default: return 'bg-gray-100 text-gray-600';
-  }
+const MEAL_CONFIG = {
+  [MealType.Breakfast]: { icon: Sunrise, style: 'bg-orange-100 text-orange-600' },
+  [MealType.Lunch]: { icon: Sun, style: 'bg-amber-100 text-amber-600' },
+  [MealType.Dinner]: { icon: Moon, style: 'bg-indigo-100 text-indigo-600' },
+  [MealType.Snack]: { icon: Coffee, style: 'bg-purple-100 text-purple-600' },
 };
 
 export const Dashboard: React.FC<DashboardProps> = ({ user, meals, onOpenCamera }) => {
-  const consumedCalories = meals.reduce((sum, meal) => sum + meal.totalCalories, 0);
-  const remainingCalories = Math.max(0, user.tdee - consumedCalories);
-  
-  // Custom Gauge Chart Data
-  const data = [
-    { name: 'Consumed', value: consumedCalories },
-    { name: 'Remaining', value: Math.max(0, user.tdee - consumedCalories) },
-  ];
-  
-  const isOverLimit = consumedCalories > user.tdee;
-  const progressColor = isOverLimit ? '#F87171' : '#10B981'; // Red-400 or Emerald-500
-  const emptyColor = '#334155'; // Slate-700
-  
-  return (
-    <div className="min-h-screen bg-slate-50 relative pb-24">
-      {/* Immersive Header Background */}
-      <div className="absolute top-0 left-0 right-0 h-80 bg-gradient-to-br from-emerald-900 via-emerald-800 to-slate-900 rounded-b-[40px] z-0"></div>
+  const consumed = meals.reduce((sum, meal) => sum + meal.totalCalories, 0);
+  const remaining = Math.max(0, user.tdee - consumed);
+  const isOver = consumed > user.tdee;
 
-      {/* Header Content */}
-      <div className="relative z-10 p-6 pt-8">
-        <div className="flex justify-between items-center mb-8">
+  const data = [
+    { name: 'Consumed', value: consumed },
+    { name: 'Remaining', value: remaining },
+  ];
+
+  return (
+    <div className="min-h-screen bg-slate-50 relative pb-28">
+      {/* Immersive Header */}
+      <div className="absolute top-0 left-0 right-0 h-72 bg-gradient-to-br from-emerald-800 via-teal-900 to-slate-900 z-0 rounded-b-[48px]"></div>
+
+      <div className="relative z-10 px-6 pt-10">
+        <header className="flex justify-between items-center mb-8">
           <div>
-            <p className="text-emerald-100/80 text-sm font-medium mb-1 uppercase tracking-wider">Hôm nay</p>
             <h1 className="text-2xl font-bold text-white tracking-tight">Chào, {user.name}</h1>
+            <p className="text-emerald-200/60 text-xs font-bold uppercase tracking-widest mt-0.5">Mục tiêu: {user.goal}</p>
           </div>
-          <div className="w-12 h-12 bg-white/10 backdrop-blur-md border border-white/20 rounded-2xl flex items-center justify-center text-emerald-100 font-bold text-lg shadow-lg">
+          <div className="w-12 h-12 bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl flex items-center justify-center text-white font-bold shadow-xl">
             {user.name.charAt(0)}
           </div>
-        </div>
+        </header>
 
-        {/* Main HUD Card */}
-        <div className="bg-white/10 backdrop-blur-xl border border-white/10 p-6 rounded-3xl shadow-2xl shadow-emerald-900/50 text-white flex items-center justify-between relative overflow-hidden group">
-           {/* Decorative Glow */}
-           <div className="absolute -top-10 -right-10 w-32 h-32 bg-emerald-500/20 blur-3xl rounded-full group-hover:bg-emerald-400/30 transition-all duration-700"></div>
-
-           <div className="flex flex-col gap-1 z-10">
-             <span className="text-emerald-200 text-sm font-medium">Calo còn lại</span>
-             <span className="text-4xl font-bold tracking-tight">{isOverLimit ? 0 : remainingCalories}</span>
-             <span className="text-emerald-200/70 text-xs">Mục tiêu: {user.tdee} Kcal</span>
-           </div>
-
-           <div className="w-32 h-32 relative z-10">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={data}
-                    innerRadius={50}
-                    outerRadius={60}
-                    startAngle={90}
-                    endAngle={-270}
-                    paddingAngle={5}
-                    cornerRadius={10}
-                    dataKey="value"
-                    stroke="none"
-                  >
-                    <Cell key="consumed" fill={progressColor} />
-                    <Cell key="remaining" fill={emptyColor} opacity={0.5} />
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                 <Flame className={`w-6 h-6 ${isOverLimit ? 'text-red-400' : 'text-emerald-400'} fill-current`} />
-              </div>
-           </div>
-        </div>
-      </div>
-
-      {/* Body Content */}
-      <div className="relative z-10 px-6 mt-2">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="font-bold text-slate-800 text-lg flex items-center gap-2">
-            Nhật ký ăn uống
-          </h2>
-          <span className="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-            {meals.length} bữa
-          </span>
-        </div>
-        
-        {meals.length === 0 ? (
-          <div className="text-center py-16 bg-white rounded-3xl shadow-sm border border-slate-100 flex flex-col items-center group cursor-pointer" onClick={onOpenCamera}>
-            <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300">
-               <Camera className="w-8 h-8 text-emerald-300" />
+        {/* HUD Card */}
+        <div className="bg-white/10 backdrop-blur-2xl border border-white/10 p-6 rounded-[32px] shadow-2xl shadow-emerald-900/40 text-white flex items-center justify-between overflow-hidden relative group">
+          <div className="absolute -top-12 -right-12 w-40 h-40 bg-emerald-400/10 blur-[64px] rounded-full group-hover:bg-emerald-400/20 transition-all duration-700"></div>
+          
+          <div className="z-10">
+            <p className="text-emerald-200/80 text-xs font-bold uppercase mb-1">Calo còn lại</p>
+            <p className="text-5xl font-black tracking-tighter">{isOver ? 0 : remaining}</p>
+            <div className="mt-4 flex items-center gap-2 bg-white/5 w-fit px-3 py-1.5 rounded-full border border-white/5">
+              <Flame className={`w-4 h-4 ${isOver ? 'text-red-400 animate-pulse' : 'text-emerald-400'}`} />
+              <span className="text-xs font-bold tracking-wide">{consumed} / {user.tdee} Kcal</span>
             </div>
-            <p className="text-slate-600 font-semibold text-lg">Chưa có dữ liệu</p>
-            <p className="text-sm text-slate-400 mt-1 max-w-[200px]">Hãy bắt đầu hành trình của bạn bằng bữa ăn đầu tiên.</p>
-            <Button variant="ghost" className="mt-4 text-emerald-600 font-bold" onClick={onOpenCamera}>
-               <Plus className="w-4 h-4" /> Thêm bữa ăn
-            </Button>
           </div>
-        ) : (
-          <div className="space-y-4 relative">
-            {/* Timeline Line */}
-            <div className="absolute left-8 top-4 bottom-4 w-0.5 bg-slate-200 z-0"></div>
 
-            {meals.map((meal, index) => (
-              <div key={meal.id} className="relative z-10 group">
-                <div className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex gap-4 transition-all duration-200 hover:shadow-lg hover:shadow-emerald-100 hover:-translate-y-1">
-                   {/* Image / Icon */}
-                   <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 relative shadow-inner">
+          <div className="w-28 h-28 z-10">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={data}
+                  innerRadius={42}
+                  outerRadius={52}
+                  startAngle={90}
+                  endAngle={-270}
+                  paddingAngle={4}
+                  cornerRadius={8}
+                  dataKey="value"
+                  stroke="none"
+                >
+                  <Cell key="consumed" fill={isOver ? '#F87171' : '#10B981'} />
+                  <Cell key="remaining" fill="#ffffff" opacity={0.1} />
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        {/* Content Section */}
+        <div className="mt-10">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-lg font-extrabold text-slate-800 tracking-tight">Nhật ký hôm nay</h2>
+            <div className="p-2 bg-white rounded-xl shadow-sm border border-slate-100">
+              <Info className="w-4 h-4 text-slate-400" />
+            </div>
+          </div>
+
+          {meals.length === 0 ? (
+            <div className="bg-white rounded-[32px] p-12 text-center border border-dashed border-slate-200 shadow-sm group cursor-pointer" onClick={onOpenCamera}>
+              <div className="w-20 h-20 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+                <Camera className="w-8 h-8 text-emerald-300" />
+              </div>
+              <h3 className="text-slate-700 font-bold text-lg">Chưa có dữ liệu</h3>
+              <p className="text-slate-400 text-sm mt-1">Chụp món ăn của bạn để bắt đầu tính toán.</p>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {meals.map((meal) => {
+                const config = MEAL_CONFIG[meal.type];
+                const Icon = config.icon;
+                return (
+                  <div key={meal.id} className="bg-white p-4 rounded-[24px] shadow-sm border border-slate-100 flex gap-4 transition-all hover:shadow-md hover:border-emerald-100">
+                    <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 shadow-inner">
                       {meal.imageUrl ? (
-                        <img src={meal.imageUrl} alt={meal.type} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                        <img src={meal.imageUrl} alt={meal.type} className="w-full h-full object-cover" />
                       ) : (
-                        <div className={`w-full h-full flex items-center justify-center ${getMealColor(meal.type)} bg-opacity-20`}>
+                        <div className="w-full h-full bg-slate-100 flex items-center justify-center text-slate-300">
                           <Utensils className="w-8 h-8" />
                         </div>
                       )}
-                   </div>
-
-                   <div className="flex-1 min-w-0 py-1">
-                     <div className="flex justify-between items-start mb-1">
-                       <div className={`flex items-center gap-2 px-3 py-1 rounded-xl text-xs font-bold ${getMealColor(meal.type)}`}>
-                          {getMealIcon(meal.type)}
-                          {meal.type}
-                       </div>
-                       <span className="font-bold text-slate-800">{meal.totalCalories} <span className="text-[10px] text-slate-400 font-normal">Kcal</span></span>
-                     </div>
-                     
-                     <p className="text-sm text-slate-600 truncate font-medium mt-2">
-                       {meal.items.map(i => i.name).join(', ')}
-                     </p>
-                     <p className="text-xs text-slate-400 mt-1">
-                       {new Date(meal.timestamp).toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'})}
-                     </p>
-                   </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                    </div>
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <div className="flex justify-between items-start mb-1">
+                        <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider ${config.style}`}>
+                          <Icon className="w-3 h-3" /> {meal.type}
+                        </div>
+                        <span className="text-sm font-black text-slate-800">{meal.totalCalories} Kcal</span>
+                      </div>
+                      <p className="text-sm text-slate-600 font-medium truncate mt-1">
+                        {meal.items.map(i => i.name).join(', ')}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Floating Action Button - Enhanced */}
-      <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30">
+      {/* FAB */}
+      <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-40">
         <button 
-          onClick={onOpenCamera} 
-          className="group relative w-18 h-18 rounded-full flex items-center justify-center transition-all duration-300 active:scale-95"
+          onClick={onOpenCamera}
+          className="w-16 h-16 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-full shadow-2xl shadow-emerald-500/40 flex items-center justify-center text-white ring-4 ring-white active:scale-90 transition-all duration-200"
         >
-          {/* Pulsing rings */}
-          <div className="absolute inset-0 bg-emerald-500 rounded-full animate-ping opacity-20"></div>
-          <div className="absolute inset-0 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-full shadow-lg shadow-emerald-500/40 w-16 h-16 flex items-center justify-center mx-auto my-auto ring-4 ring-white">
-            <Camera className="w-7 h-7 text-white" />
-          </div>
+          <Camera className="w-7 h-7" />
         </button>
       </div>
     </div>

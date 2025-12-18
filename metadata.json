@@ -1,7 +1,7 @@
 {
-  "name": "SnapCalo",
-  "description": "Ứng dụng AI tính toán Calo thông minh dành cho người Việt. Chụp ảnh món ăn và nhận thông tin dinh dưỡng ngay lập tức.",
   "requestFramePermissions": [
     "camera"
-  ]
+  ],
+  "name": "",
+  "description": ""
 }

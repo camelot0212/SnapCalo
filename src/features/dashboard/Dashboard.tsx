@@ -1,5 +1,5 @@
 import React from 'react';
-import { UserProfile, Meal, MealType } from '../types';
+import { UserProfile, Meal, MealType } from '../../types';
 import { Camera, Utensils, Flame, Sunrise, Sun, Moon, Coffee, Plus, ChevronRight } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
@@ -45,18 +45,18 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, meals, onOpenCamera 
         {/* HUD Hero Card */}
         <div className="bg-white/10 backdrop-blur-3xl border border-white/20 p-8 rounded-[48px] shadow-2xl shadow-emerald-950/40 text-white flex items-center justify-between overflow-hidden relative group">
           <div className="absolute -top-24 -right-24 w-64 h-64 bg-emerald-400/20 blur-[100px] rounded-full group-hover:bg-emerald-400/30 transition-all duration-1000"></div>
-          
+
           <div className="z-10 flex flex-col">
             <p className="text-emerald-200/70 text-[10px] font-black uppercase tracking-widest mb-1">Cần bổ sung</p>
             <p className="text-6xl font-black tracking-tighter leading-none mb-4">{isOver ? 0 : remaining}</p>
-            
+
             <div className="flex flex-col gap-2">
               <div className="flex items-center gap-2">
                 <Flame className={`w-4 h-4 ${isOver ? 'text-red-400' : 'text-emerald-400'}`} />
                 <span className="text-xs font-bold">{consumed} / {user.tdee} Kcal</span>
               </div>
               <div className="w-24 h-1.5 bg-white/10 rounded-full overflow-hidden">
-                <div 
+                <div
                   className={`h-full transition-all duration-1000 ${isOver ? 'bg-red-400' : 'bg-emerald-400'}`}
                   style={{ width: `${Math.min(100, (consumed / user.tdee) * 100)}%` }}
                 ></div>
@@ -84,6 +84,42 @@ export const Dashboard: React.FC<DashboardProps> = ({ user, meals, onOpenCamera 
               </PieChart>
             </ResponsiveContainer>
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                <Utensils className="w-6 h-6 text-white/20" />
+              <Utensils className="w-6 h-6 text-white/20" />
             </div>
           </div>
+        </div>
+      </div>
+
+      <div className="px-6 mt-8">
+        <h2 className="text-lg font-bold text-slate-800 mb-4">Nhật ký hôm nay</h2>
+        <div className="space-y-4">
+          {meals.map(meal => {
+            const config = MEAL_CONFIG[meal.type];
+            const Icon = config.icon;
+            return (
+              <div key={meal.id} className="bg-white p-4 rounded-3xl shadow-sm border border-slate-100 flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${config.style} border`}>
+                  <Icon className="w-6 h-6" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex justify-between items-center">
+                    <h3 className="font-bold text-slate-800">{meal.type}</h3>
+                    <span className="font-bold text-emerald-600">{meal.totalCalories} Kcal</span>
+                  </div>
+                  <p className="text-xs text-slate-400 mt-1">{meal.items.map(i => i.name).join(', ')}</p>
+                </div>
+              </div>
+            );
+          })}
+          {meals.length === 0 && (
+            <p className="text-center text-slate-400 py-8">Chưa có bữa ăn nào.</p>
+          )}
+        </div>
+      </div>
+
+      <button onClick={onOpenCamera} className="fixed bottom-8 right-6 w-16 h-16 bg-emerald-500 rounded-full flex items-center justify-center shadow-lg shadow-emerald-500/40 z-50 animate-bounce hover:scale-110 transition-transform">
+        <Camera className="w-8 h-8 text-white" />
+      </button>
+    </div>
+  );
+};

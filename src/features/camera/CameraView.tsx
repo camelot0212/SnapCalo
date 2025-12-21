@@ -1,8 +1,8 @@
 import React, { useRef, useState } from 'react';
-import { Button } from './ui/Button';
+import { Button } from '../../components/ui/Button';
 import { Camera, Image as ImageIcon, X, Zap, ChevronRight } from 'lucide-react';
-import { analyzeFoodImage } from '../services/geminiService';
-import { FoodItem } from '../types';
+import { analyzeFoodImage } from '../../lib/gemini';
+import { FoodItem } from '../../types';
 
 interface CameraViewProps {
   onClose: () => void;
@@ -82,10 +82,10 @@ export const CameraView: React.FC<CameraViewProps> = ({ onClose, onAnalysisCompl
       <div className="flex-1 relative overflow-hidden bg-gray-900">
         {preview ? (
           <div className="relative w-full h-full">
-            <img 
-              src={preview} 
-              alt="Food preview" 
-              className="w-full h-full object-contain" 
+            <img
+              src={preview}
+              alt="Food preview"
+              className="w-full h-full object-contain"
             />
             {/* Analysis Overlay */}
             {isAnalyzing && (
@@ -100,17 +100,17 @@ export const CameraView: React.FC<CameraViewProps> = ({ onClose, onAnalysisCompl
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center relative">
-             <div className="w-72 h-72 border border-white/20 rounded-[40px] flex items-center justify-center mb-8 relative">
-               {/* Corner Markers */}
-               <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-2xl -mt-1 -ml-1"></div>
-               <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-2xl -mt-1 -mr-1"></div>
-               <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-2xl -mb-1 -ml-1"></div>
-               <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-2xl -mb-1 -mr-1"></div>
-               
-               <Camera className="w-12 h-12 text-white/50" />
-             </div>
-             <p className="text-white/80 font-medium text-lg">Căn món ăn vào khung</p>
-             <p className="text-white/50 text-sm mt-2">AI sẽ tự động nhận diện thành phần</p>
+            <div className="w-72 h-72 border border-white/20 rounded-[40px] flex items-center justify-center mb-8 relative">
+              {/* Corner Markers */}
+              <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-emerald-500 rounded-tl-2xl -mt-1 -ml-1"></div>
+              <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-emerald-500 rounded-tr-2xl -mt-1 -mr-1"></div>
+              <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-emerald-500 rounded-bl-2xl -mb-1 -ml-1"></div>
+              <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-emerald-500 rounded-br-2xl -mb-1 -mr-1"></div>
+
+              <Camera className="w-12 h-12 text-white/50" />
+            </div>
+            <p className="text-white/80 font-medium text-lg">Căn món ăn vào khung</p>
+            <p className="text-white/50 text-sm mt-2">AI sẽ tự động nhận diện thành phần</p>
           </div>
         )}
       </div>
@@ -119,39 +119,39 @@ export const CameraView: React.FC<CameraViewProps> = ({ onClose, onAnalysisCompl
       <div className="bg-gray-900 px-6 py-8 pb-10 safe-area-bottom">
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3">
-             <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
-               <X className="w-4 h-4 text-red-500" />
-             </div>
-             <p className="text-red-200 text-sm">{error}</p>
+            <div className="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center flex-shrink-0">
+              <X className="w-4 h-4 text-red-500" />
+            </div>
+            <p className="text-red-200 text-sm">{error}</p>
           </div>
         )}
 
         {!preview ? (
           <div className="flex items-center justify-around">
             <label className="flex flex-col items-center gap-2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity">
-               <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
-                 <ImageIcon className="w-6 h-6 text-white" />
-               </div>
-               <span className="text-xs font-medium">Thư viện</span>
-               <input 
-                type="file" 
-                accept="image/*" 
-                className="hidden" 
+              <div className="w-12 h-12 rounded-full bg-white/10 flex items-center justify-center">
+                <ImageIcon className="w-6 h-6 text-white" />
+              </div>
+              <span className="text-xs font-medium">Thư viện</span>
+              <input
+                type="file"
+                accept="image/*"
+                className="hidden"
                 onChange={handleFileChange}
               />
             </label>
 
             <div className="relative">
-               <input 
-                type="file" 
-                accept="image/*" 
+              <input
+                type="file"
+                accept="image/*"
                 capture="environment"
-                className="hidden" 
+                className="hidden"
                 ref={fileInputRef}
                 onChange={handleFileChange}
               />
-               <Button 
-                onClick={triggerFileInput} 
+              <Button
+                onClick={triggerFileInput}
                 className="!w-20 !h-20 !rounded-full !p-0 bg-white hover:bg-gray-200 ring-4 ring-white/20 shadow-xl shadow-white/10"
               >
                 <div className="w-16 h-16 rounded-full border-2 border-black flex items-center justify-center">
@@ -159,21 +159,21 @@ export const CameraView: React.FC<CameraViewProps> = ({ onClose, onAnalysisCompl
                 </div>
               </Button>
             </div>
-            
+
             <div className="w-12 opacity-0"></div> {/* Spacer for balance */}
           </div>
         ) : (
           <div className="flex gap-4">
-             <Button 
-              variant="secondary" 
+            <Button
+              variant="secondary"
               onClick={() => setPreview(null)}
               className="flex-1 !bg-white/10 !text-white !border-white/10 hover:!bg-white/20 !rounded-2xl"
             >
               Chụp lại
             </Button>
-            <Button 
-              variant="primary" 
-              onClick={handleAnalyze} 
+            <Button
+              variant="primary"
+              onClick={handleAnalyze}
               className="flex-[2] !rounded-2xl !bg-emerald-500 hover:!bg-emerald-400 !shadow-emerald-500/40"
             >
               Phân tích <Zap className="w-4 h-4 fill-current" />

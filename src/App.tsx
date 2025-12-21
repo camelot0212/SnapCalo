@@ -6,6 +6,7 @@ import { OnboardingPage } from './pages/OnboardingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { CameraPage } from './pages/CameraPage';
 import { EditorPage } from './pages/EditorPage';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 export default function App() {
   return (
@@ -15,9 +16,21 @@ export default function App() {
           <div className="antialiased text-slate-900 bg-white max-w-md mx-auto min-h-screen border-x border-slate-100 shadow-2xl relative">
             <Routes>
               <Route path="/onboarding" element={<OnboardingPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/camera" element={<CameraPage />} />
-              <Route path="/editor" element={<EditorPage />} />
+              <Route path="/dashboard" element={
+                <ProtectedRoute>
+                  <DashboardPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/camera" element={
+                <ProtectedRoute>
+                  <CameraPage />
+                </ProtectedRoute>
+              } />
+              <Route path="/editor" element={
+                <ProtectedRoute>
+                  <EditorPage />
+                </ProtectedRoute>
+              } />
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
             </Routes>
           </div>
